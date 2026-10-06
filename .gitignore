@@ -1,0 +1,15 @@
+# Ambiente virtual (venv) - não versionar
+ambvirtu/
+venv/
+.venv/
+
+# Cache do Python
+__pycache__/
+*.py[cod]
+
+# Arquivos do VS Code / sistema
+.vscode/
+Thumbs.db
+
+# Relatórios e evidências da atividade (envio somente no AVA)
+Evidencias/
