@@ -45,6 +45,18 @@ def dados_usuario2(p_nome, p_profissao, p_disciplina):
 def login():
     return render_template("t_login.html")
 
+@app_Estephany.route('/autenticar', methods=['GET','POST'])
+def autenticarUsuario():
+    if request.method == 'POST':
+       usuario = request.form.get("nome_usuario")
+       senha = request.form.get("senha")
+    else:   
+       usuario = request.args.get("nome_usuario")
+       senha = request.args.get("senha")
+
+    return f"usuario: {usuario} e senha: {senha} recebidos com sucesso!"
+
+
 #esta funÃ§Ã£o nÃ£o estÃ¡ vinculado a rota, mas pode ser usada dentro de uma rota ou outra funÃ§Ã£o ou invocada de fora
 def saudacaoes(nome): 
     return f"Boa noite, {nome}!. Tudo bem?"
