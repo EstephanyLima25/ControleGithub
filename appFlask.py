@@ -1,68 +1,64 @@
-﻿from flask import Flask, render_template, request
-
-app_Estephany = Flask(__name__,template_folder='t_templates')  #cria o objeto Flask, que Ã© a aplicaÃ§Ã£o web, e define a pasta templates como pasta de templates
-
-
-@app_Estephany.route('/ola')
-def raiz():   #esta funÃ§Ã£o estÃ¡ vinculada a rota  /ola
-    return render_template('homepage.html')  #retorna o arquivo index.html que estÃ¡ na pasta templates
-
-#veja que o id Ã© um parÃ¢metro da rota e faz parte da URL, e nÃ£o vai confundir com a rota /ola
-@app_Estephany.route('/ola/<id>') 
-def saudacao(id):
-   return render_template('homepage_nome.html', campoNome= id) 
-   #retorna o arquivo homepage.html que estÃ¡ na pasta templates. No .html tem o campo {{campoNome}} que vai receber o valor do parÃ¢metro id da rota
+﻿from flask import Flask, render_template
+from flask import request   #para trabalhar com os mÃ©todos GET e POST
+from flask import flash     #para msgs popup
+from flask import redirect  #para redirecionar pÃ¡ginas
 
 
-#@app_Estephany.route('/ola/<id>')
-#def saudacao():
-#    nome = request.args.get("id")
-#    return render_template('homepage_nome.html', campoNome= nome) #retorna o arquivo homepage.html que estÃ¡ na pasta templates
+# os templates coloca em outra pasta. 
+# Por padrÃ£o, fica na pasta templates e nÃ£o precisa informar no template_folder,
+# mas se quiser armazenar em outra pasta indique nesse parÃ¢metro.
+app_Estephany = Flask(__name__, template_folder='t_templates') 
+# no caso de usar flash pede a configuraÃ§Ã£o de uma chave secreta
+app_Estephany.config['SECRET_KEY'] = "palavra-secreta-IFRO"
 
-@app_Estephany.route('/')
-@app_Estephany.route('/index')
-def index():   #esta funÃ§Ã£o estÃ¡ vinculada a rota raÃ­z / e rota /index
-    return render_template('t_index.html', nome ="Turma 2025") 
 
-@app_Estephany.route('/contato')
+@app_Estephany.route("/")       #se no navegador digitar / ou /index
+@app_Estephany.route("/index")  
+def index():
+    return render_template ("t_index.html") #optei por prefixar com t_ os nomes dos arquivos que usam template
+
+@app_Estephany.route("/contato")
 def contato():
-    return render_template('t_contato.html')  
+    return render_template("t_contato.html") 
 
-@app_Estephany.route('/usuario')
-def dados_usuario():
-    #nome_usuario="Mariela"
-    dados_usu = {"nome": "Mariela", "profissao": "Professora EBTT", "disciplina":"Desenvolvimento Web III"}
-    return render_template("t_usuario.html", dados = dados_usu)
-                                           #parÃ¢metro recebe argumento
-                                           #colocar o site no ar
+#rota /usuarios COM passagem de argumentos
+@app_Estephany.route("/usuario/<nome_usuario>;<nome_profissao>")
+#rota /usuarios SEM passagem de argumentos --> definir valor padrÃ£o com defaults
+@app_Estephany.route("/usuario", defaults={"nome_usuario":"usuÃ¡rio?","nome_profissao":""})  
 
-@app_Estephany.route('/usuario/<p_nome>/<p_profissao>/<p_disciplina>')
-def dados_usuario2(p_nome, p_profissao, p_disciplina):
-    dados_usu = {"nome": p_nome, "profissao": p_profissao, "disciplina": p_disciplina}
-    return render_template("usuario.html", dados = dados_usu)
+def dados_usuario (nome_usuario, nome_profissao):
+    dados_usu = {"profissao": nome_profissao, "disciplina":"Desenvolvimento Web III"}
+    return render_template ("t_usuario.html", nome=nome_usuario, dados = dados_usu)  
 
-@app_Estephany.route('/login')
+#new
+@app_Estephany.route("/login")
 def login():
-    return render_template("t_login.html")
+    return render_template("t_login_flash_js_cadastro.html")
+    
+#new
+"""++++
+Para poder recuperar os argumentos passados nos parÃ¢metros na URL precisa importar o pacote
+from flask import request
 
-@app_Estephany.route('/autenticar', methods=['GET','POST'])
-def autenticarUsuario():
-    if request.method == 'POST':
-       usuario = request.form.get("nome_usuario")
-       senha = request.form.get("senha")
-    else:   
-       usuario = request.args.get("nome_usuario")
-       senha = request.args.get("senha")
+TambÃ©m precisa colocar que essa pÃ¡gina aceita requisiÃ§Ãµes de tipo GET ou POST
+O GET Ã© padrÃ£o, mas no caso do POST altere no html method="POST"
+"""
+@app_Estephany.route("/autenticar", methods=['GET', 'POST']) 
+def autenticar():
+    #mÃ©todo POST - pega nos fields (campos) do formulÃ¡rio
+    usuario = request.form.get('nome_usuario')
+    senha = request.form.get('senha')
+    
+    if usuario == "admin" and senha == "ifro":
+        return f"usuario: {usuario} e senha: {senha}"
+    else:
+        #para nÃ£o dar msg. na outra pÃ¡gina, vamos manter na prÃ³pria pÃ¡gina com flash
+        #adicionar import flash
+        flash("Dados invÃ¡lidos!")
+        flash("Login ou senha invÃ¡lidos!")
+        return redirect ('/login') #adicionar import redirect
 
-    return f"usuario: {usuario} e senha: {senha} recebidos com sucesso!"
 
-
-#esta funÃ§Ã£o nÃ£o estÃ¡ vinculado a rota, mas pode ser usada dentro de uma rota ou outra funÃ§Ã£o ou invocada de fora
-def saudacaoes(nome): 
-    return f"Boa noite, {nome}!. Tudo bem?"
-
-#maiores detalhes nos slides que estÃ£o no AVA.
-if __name__ == '__main__':  #verifica se o arquivo estÃ¡ sendo executado diretamente, e nÃ£o importado
-    app_Estephany.run(port=7000)
-
-app_Estephany.run( port=6000)    #executa caso o o arquivo seja importado, mas nÃ£o Ã© uma boa prÃ¡tica, pois pode gerar conflito de portas
+if __name__ == "__main__": 
+     app_Estephany.run(port = 8000) 
+     
