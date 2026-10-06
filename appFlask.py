@@ -66,3 +66,5 @@ if __name__ == '__main__':  #verifica se o arquivo estÃ¡ sendo executado diret
     app_Estephany.run(port=7000)
 
 app_Estephany.run( port=6000)    #executa caso o o arquivo seja importado, mas nÃ£o Ã© uma boa prÃ¡tica, pois pode gerar conflito de portas
+
+# branch aula06 - versão com pasta Templates (aula 06)
